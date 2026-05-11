@@ -1,7 +1,7 @@
 Flask
 Flask-Cors
 Flask-JWT-Extended
-PyJWT>=2.12.1
+PyJWT
 Flask-SQLAlchemy
 SQLAlchemy
 psycopg2-binary
@@ -11,3 +11,4 @@ cloudinary
 email-validator
 google-auth
 google-auth-oauthlib
+gunicorn
