@@ -4,7 +4,7 @@ from app import create_app
 
 load_dotenv()
 
-print("CLIENT ID:", os.getenv('GOOGLE_CLIENT_ID'))
+# print("CLIENT ID:", os.getenv('GOOGLE_CLIENT_ID'))
 app = create_app()
 
 if __name__ == '__main__':
