@@ -17,48 +17,76 @@ from routes.share_routes import share_bp
 
 jwt = JWTManager()
 
+
 def ensure_lightweight_schema_updates():
-    # Hackathon-friendly migration safety for columns added after the first db.create_all run.
     inspector = inspect(db.engine)
     if 'trips' not in inspector.get_table_names():
         return
-    trip_columns = {column['name'] for column in inspector.get_columns('trips')}
+
+    trip_columns = {col['name'] for col in inspector.get_columns('trips')}
+
     if 'is_public' not in trip_columns:
-        db.session.execute(text('ALTER TABLE trips ADD COLUMN is_public BOOLEAN DEFAULT FALSE NOT NULL'))
+        db.session.execute(
+            text('ALTER TABLE trips ADD COLUMN is_public BOOLEAN DEFAULT FALSE NOT NULL')
+        )
+
     if 'public_slug' not in trip_columns:
-        db.session.execute(text('ALTER TABLE trips ADD COLUMN public_slug VARCHAR(180)'))
-        db.session.execute(text('CREATE UNIQUE INDEX IF NOT EXISTS ix_trips_public_slug ON trips (public_slug)'))
+        db.session.execute(
+            text('ALTER TABLE trips ADD COLUMN public_slug VARCHAR(180)')
+        )
+        db.session.execute(
+            text('CREATE UNIQUE INDEX IF NOT EXISTS ix_trips_public_slug ON trips (public_slug)')
+        )
+
     db.session.commit()
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    CORS(app, resources={r'/api/*': {'origins': app.config['FRONTEND_ORIGIN']}}, supports_credentials=True)
+    # CORS Setup
+    raw_origin = app.config.get('FRONTEND_ORIGIN') or ''
+    allowed_origins = [o.strip() for o in raw_origin.split(',') if o.strip()]
+    origins_to_use = allowed_origins if allowed_origins else ['https://travel-loopp.vercel.app']
+
+    CORS(
+        app,
+        resources={r'/api/*': {'origins': origins_to_use}},
+        supports_credentials=True,
+        allow_headers=['Content-Type', 'Authorization'],
+        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    )
+
+    # Extensions
     db.init_app(app)
     jwt.init_app(app)
 
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(user_bp, url_prefix='/api/user')
-    app.register_blueprint(trip_bp, url_prefix='/api/trips')
+    # Blueprints
+    app.register_blueprint(auth_bp,      url_prefix='/api/auth')
+    app.register_blueprint(user_bp,      url_prefix='/api/user')
+    app.register_blueprint(trip_bp,      url_prefix='/api/trips')
     app.register_blueprint(itinerary_bp, url_prefix='/api/itinerary')
-    app.register_blueprint(budget_bp, url_prefix='/api/budget')
+    app.register_blueprint(budget_bp,    url_prefix='/api/budget')
     app.register_blueprint(checklist_bp, url_prefix='/api/checklist')
-    app.register_blueprint(journal_bp, url_prefix='/api/journal')
-    app.register_blueprint(share_bp, url_prefix='/api/share')
-    app.register_blueprint(activity_bp, url_prefix='/api/activities')
-    app.register_blueprint(city_bp, url_prefix='/api/cities')
+    app.register_blueprint(journal_bp,   url_prefix='/api/journal')
+    app.register_blueprint(share_bp,     url_prefix='/api/share')
+    app.register_blueprint(activity_bp,  url_prefix='/api/activities')
+    app.register_blueprint(city_bp,      url_prefix='/api/cities')
 
+    # Health check
     @app.get('/api/health')
     def health_check():
-      return jsonify({'status': 'ok', 'service': 'traveloop-api'}), 200
+        return jsonify({'status': 'ok', 'service': 'traveloop-api'}), 200
 
+    # 404 handler
     @app.errorhandler(404)
     def not_found(_):
-      return jsonify({'message': 'Route not found'}), 404
+        return jsonify({'message': 'Route not found'}), 404
 
+    # DB init
     with app.app_context():
-      db.create_all()
-      ensure_lightweight_schema_updates()
+        db.create_all()
+        ensure_lightweight_schema_updates()
 
     return app
