@@ -414,7 +414,7 @@ No secrets or credentials are hardcoded anywhere in the application.
 
 ## 📄 License
 
-Built for the **Odoo × Parul University Hackathon**. For educational and demo use.
+Built for the **Personal Project**. For educational and demo use.
 Add a formal license before any public production release.
 
 ---
