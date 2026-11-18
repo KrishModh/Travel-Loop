@@ -407,19 +407,6 @@ No secrets or credentials are hardcoded anywhere in the application.
 
 ---
 
-### Aakansha Patidar — *Frontend Developer*
-
-*UI development · Component engineering · Page flows · Styling*
-
-[![GitHub](https://img.shields.io/badge/GitHub-AakanshaPatidar-181717?style=for-the-badge&logo=github)](https://github.com/Aakanshapatidar)
-
----
-
-### Sahil Khan — *Backend Developer*
-
-*Backend engineering · API integration · Business logic · Database design*
-
-[![GitHub](https://img.shields.io/badge/GitHub-SahilKhan-181717?style=for-the-badge&logo=github)](https://github.com/SahilKhan145)
 
 </div>
 
