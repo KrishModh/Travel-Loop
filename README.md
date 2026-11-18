@@ -16,8 +16,6 @@
 
 <br/>
 
-**Built at Odoo × Parul University Hackathon**
-
 </div>
 
 ---
